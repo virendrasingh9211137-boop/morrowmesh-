@@ -17,11 +17,11 @@ try {
 }
 
 function initializeModelPicker() {
-  document.querySelector('.compose-hint').textContent = 'Groq AI · streams replies';
-  $('notice').innerHTML = '<b>Groq AI</b> · ready to chat';
+  document.querySelector('.compose-hint').textContent = 'Morrowmesh AI · streams replies';
+  $('notice').innerHTML = '<b>Morrowmesh AI</b> · ready to chat';
   const configured = Boolean(String(window.MORROWMESH_API_URL || '').trim());
   $('modelMenuNote').textContent = configured
-    ? 'Secure Groq connection is configured. Visitors do not need an API key.'
+    ? 'Secure AI connection is ready. Visitors do not need an API key.'
     : 'The app owner needs to set up the free Worker URL once before chat is available.';
   setNetworkState();
 }
@@ -166,7 +166,7 @@ function addMessage(role, text, meta = '', error = false, index = null) {
   if (meta) {
     const label = document.createElement('div');
     label.className = 'meta';
-    label.textContent = meta;
+    label.textContent = role === 'assistant' ? 'Morrowmesh AI' : meta;
     bubble.append(label);
   }
   content.append(bubble);
@@ -316,7 +316,7 @@ function saveMessage(item, message) {
 function setNetworkState() {
   const connected = Boolean(String(window.MORROWMESH_API_URL || '').trim());
   $('networkDot').style.background = connected ? '#83d7aa' : '#777';
-  $('networkDot').title = connected ? 'Groq proxy configured' : 'Worker URL not configured';
+  $('networkDot').title = connected ? 'Secure AI connection ready' : 'Worker URL not configured';
 }
 
 function showAttachment() {
@@ -391,7 +391,7 @@ document.querySelectorAll('.suggestion').forEach(button => {
   });
 });
 
-async function streamGroqAnswer(messages, bubble) {
+async function streamAssistantAnswer(messages, bubble) {
   const apiUrl = String(window.MORROWMESH_API_URL || '').trim().replace(/\/$/, '');
   if (!apiUrl) throw new Error('The Morrowmesh owner needs to configure the Worker URL before chat is available.');
   let response;
@@ -407,7 +407,7 @@ async function streamGroqAnswer(messages, bubble) {
   if (!response.ok) {
     let message = `AI request failed (${response.status}).`;
     try { message = (await response.json()).error || message; } catch { /* Keep the readable fallback. */ }
-    if (response.status === 429) message = 'Groq Free limit reached. Please wait and try again later.';
+    if (response.status === 429) message = 'The AI service is temporarily busy. Please wait and try again later.';
     throw new Error(message);
   }
   if (!response.body) throw new Error('The AI service returned no response stream.');
@@ -481,13 +481,13 @@ async function sendMessage() {
   bubble.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
   $('send').disabled = true;
   try {
-    $('notice').textContent = 'Connecting to Groq…';
+    $('notice').textContent = 'Connecting to Morrowmesh AI…';
     const modelMessages = [
       ...history,
       { role: 'user', content: prompt }
     ];
-    const answer = await streamGroqAnswer(modelMessages, bubble);
-    const meta = 'Groq AI · GPT-OSS 20B';
+    const answer = await streamAssistantAnswer(modelMessages, bubble);
+    const meta = 'Morrowmesh AI';
     bubble.innerHTML = renderAssistantText(answer);
     const label = document.createElement('div');
     label.className = 'meta';
@@ -498,8 +498,8 @@ async function sendMessage() {
     addMessageActions(thinking, 'assistant', answer, item.messages.length - 1, item.id);
   } catch (error) {
     thinking.remove();
-    const meta = 'Groq unavailable';
-    const reason = error.message || 'Groq could not answer right now. Please try again.';
+    const meta = 'Morrowmesh AI';
+    const reason = error.message || 'Morrowmesh AI could not answer right now. Please try again.';
     $('notice').textContent = reason;
     saveMessage(item, { role: 'assistant', text: reason, meta, error: true });
     addMessage('assistant', reason, meta, true, item.messages.length - 1);
